@@ -12,43 +12,30 @@ fn part1(input: &str) -> i64 {
 }
 
 fn part2(input: &str) -> i64 {
-    let regex = Regex::new(r"(?U).*do\(\)").unwrap();
-    println!("start");
-    let first = regex
-        .find_iter(input)
-        .map(|matched| {
-            println!("{}", matched.as_str());
-            part1(matched.as_str())
+    let regex =
+        Regex::new(r"(?m)(do\(\)|don't\(\)|mul\((?<num1>[0-9]+),(?<num2>[0-9]+)\))").unwrap();
+    let mut enabled = true;
+    regex
+        .captures_iter(input)
+        .map(|captures| {
+            if let Some(matched) = captures.get(0) {
+                enabled = match matched.as_str() {
+                    "do()" => true,
+                    "don't()" => false,
+                    _ => enabled,
+                };
+            }
+            if let (Some(num1), Some(num2)) = (captures.name("num1"), captures.name("num2")) {
+                if enabled {
+                    return num1.as_str().parse::<i64>().unwrap()
+                        * num2.as_str().parse::<i64>().unwrap();
+                }
+            }
+            0
         })
-        .sum::<i64>();
-    let regex = Regex::new(r"(?mU)do\(\).*don't\(\)").unwrap();
-    println!("mid");
-    let mut last_match: usize = 0;
-    let mid = regex
-        .find_iter(input)
-        .map(|matched| {
-            println!("{}", matched.as_str());
-            last_match = matched.start();
-            part1(matched.as_str())
-        })
-        .sum::<i64>();
-    println!("last");
-    let last = Regex::new(r"(?U)do\(\).*").unwrap();
-    let last = last
-        .find_iter(&input[last_match..input.len()])
-        .map(|matched| {
-            println!("{}", matched.as_str());
-            last_match = matched.start();
-            part1(matched.as_str())
-        })
-        .sum::<i64>();
-
-    first + mid
+        .sum()
 }
 pub fn answers() -> (i64, i64) {
     let input = include_str!("../input/day3.txt");
-    (
-        part1(input),
-        part2(r"xmul(2,4)&mul[3,7]!^don't()_mul(5,5)+mul(32,64](mul(11,8)undo()?mul(8,5))"),
-    )
+    (part1(input), part2(input))
 }
