@@ -1,8 +1,8 @@
 use std::error::Error;
 
-mod day4;
+mod day5;
 fn main() -> Result<(), Box<dyn Error>> {
-    let (part1, part2) = day4::answers();
+    let (part1, part2) = day5::answers();
     println!("part 1: {part1}");
     println!("part 2: {part2}");
 
